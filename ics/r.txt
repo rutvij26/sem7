@@ -1,0 +1,193 @@
+/*
+ RSA algorithm
+   1. Choose two prime numbers p and q.
+   2. Compute n = p*q.
+   3. Calculate phi = (p-1) * (q-1).
+   4. Choose an integer e such that 1 < e < phi(n) and gcd(e, phi(n)) = 1; i.e., e and phi(n) are coprime.
+   5. Calculate d as d ≡ e−1 (mod phi(n)); here, d is the modular multiplicative inverse of e modulo phi(n).
+   6. For encryption, C = P^e mod n, where P = original message.
+   7. For decryption, P = C^d mod n.
+
+*/
+
+#include<iostream>
+#include<math.h>
+
+using namespace std;
+
+//to find gcd
+int gcd(int a, int h) {
+    int temp;
+    while (1) {
+        temp = a % h;
+        if (temp == 0)
+            return h;
+        a = h;
+        h = temp;
+    }
+}
+
+double powerMod(double a, double k, double n)
+{
+    int i =0;
+    if (n==1) return 0;
+    double power = 1;
+    for(i=1; i<=k; i++)
+    {
+        power = fmod((power*a), n);
+    }
+    return power;
+}
+
+int main() {
+    
+    double p,q; //p and q are prime numbers such that p!=q
+    double e,d; //e is encryption key and d is decryption key 
+    double flag; //to check if GCD(e,phi) = 1 
+    double P,C;  //P->Plain text message  C->Cipher text message
+    
+    cout << "****** RSA Algorithm ******";
+    cout<<"\n\nEnter two relatively prime numbers";
+    cout<< "\n" << "p = ";
+    cin >> p;
+    cout << "q = ";
+    cin >> q;
+    
+    double n = p * q;
+    cout << "\n" << "n = p*q = " << n;
+     
+    double phi = (p - 1) * (q - 1);
+    cout << "\n" << "phi(n) = (p-1)*(q-1) = " << phi;
+
+    cout << "\n\n" << "( 1<e<phi(n) and gcd(e,phi(n))=1 )";
+    cout << "\n" << "Enter Encryption key e = ";
+    cin >> e;    
+    while (e < phi) {
+        flag = gcd(e, phi);
+        if (flag == 1)
+            break;
+        else
+            e++;
+    }
+
+    cout << "\n" << "Calculating d such that";
+    cout << "\n" << "e*d mod phi(n) = 1";
+    cout << "\n" << e << "*d mod " << phi << "= 1";
+    cout << "\n\n" << "d = (1+(phi(n)*i))/e  where i = 1 to 100\n";
+   
+    double i;
+    for(i = 1; i <= 100 && floor(d) != ceil(d); i++)   //floor and ceil of integer are equal
+    {
+       d = (1+(i*phi)) / e;
+       cout << "\n" <<"d" << " = " << "(1+(" << i << "*" << phi << "))/" << e << " where i = "<< i << "\n";
+       cout << "  = " << 1+(i*phi) << "/" << e << " = " << d << "\n";
+    } 
+    cout << "\nDecryption Key d = " << d << "\n";
+    
+    cout << "\nPublic Key = " << "{e,n} = " << "{" << e << "," << n << "}";
+    cout << "\nPrivate Key = " << "{d,n} = " << "{" << d << "," << n << "}";
+
+    cout << "\n\nEnter the plain text message P: ";
+    cin >> P;
+
+    cout << "\nEncryption:";
+    cout << "\n" << "C = P^e mod n where P < n";
+    cout << "\n" << "C = " << P << "^" << e << " mod " << n;
+    C = powerMod(P, e, n);
+    cout << "\nCipher text message C = " << C << "\n";
+
+    cout << "\nDecryption:";
+    cout << "\n" << "P = C^d mod n";
+    cout << "\n" << "P = " << C << "^" << d << " mod " << n;
+    P = powerMod(C, d, n);
+    cout << "\nPlain text message P = "<< P << "\n";
+
+    return 0;
+}
+
+/*
+ OUTPUT:
+
+iraj@iraj-VirtualBox:~/Documents$ g++ RSA.cpp
+iraj@iraj-VirtualBox:~/Documents$ ./a.out
+****** RSA Algorithm ******
+
+Enter two relatively prime numbers
+p = 7
+q = 11
+
+n = p*q = 77
+phi(n) = (p-1)*(q-1) = 60
+
+( 1<e<phi(n) and gcd(e,phi(n))=1 )
+Enter Encryption key e = 17
+
+Calculating d such that
+e*d mod phi(n) = 1
+17*d mod 60= 1
+
+d = (1+(phi(n)*i))/e  where i = 1 to 100
+
+d = (1+(1*60))/17 where i = 1
+  = 61/17 = 3.58824
+
+d = (1+(2*60))/17 where i = 2
+  = 121/17 = 7.11765
+
+d = (1+(3*60))/17 where i = 3
+  = 181/17 = 10.6471
+
+d = (1+(4*60))/17 where i = 4
+  = 241/17 = 14.1765
+
+d = (1+(5*60))/17 where i = 5
+  = 301/17 = 17.7059
+
+d = (1+(6*60))/17 where i = 6
+  = 361/17 = 21.2353
+
+d = (1+(7*60))/17 where i = 7
+  = 421/17 = 24.7647
+
+d = (1+(8*60))/17 where i = 8
+  = 481/17 = 28.2941
+
+d = (1+(9*60))/17 where i = 9
+  = 541/17 = 31.8235
+
+d = (1+(10*60))/17 where i = 10
+  = 601/17 = 35.3529
+
+d = (1+(11*60))/17 where i = 11
+  = 661/17 = 38.8824
+
+d = (1+(12*60))/17 where i = 12
+  = 721/17 = 42.4118
+
+d = (1+(13*60))/17 where i = 13
+  = 781/17 = 45.9412
+
+d = (1+(14*60))/17 where i = 14
+  = 841/17 = 49.4706
+
+d = (1+(15*60))/17 where i = 15
+  = 901/17 = 53
+
+Decryption Key d = 53
+
+Public Key = {e,n} = {17,77}
+Private Key = {d,n} = {53,77}
+
+Enter the plain text message P: 8
+
+Encryption:
+C = P^e mod n where P < n
+C = 8^17 mod 77
+Cipher text message C = 57
+
+Decryption:
+P = C^d mod n
+P = 57^53 mod 77
+Plain text message P = 8
+
+*/

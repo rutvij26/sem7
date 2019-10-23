@@ -1,0 +1,191 @@
+// C++ program for Chinese Remainder theorem
+
+#include <iostream>
+using namespace std;
+
+// Returns modulo inverse of a with respect to m using extended
+// Euclid Algorithm.
+int inv(int a, int m)
+{
+    int m0 = m, t, q;
+    int x0 = 0, x1 = 1;
+
+    if (m == 1)
+        return 0;
+
+    // Apply extended Euclid Algorithm
+    while (a > 1)
+    {
+        // q is quotient
+        q = a / m;
+
+        t = m;
+
+        // m is remainder now, process same as
+        // euclid's algorithm
+        m = a % m, a = t;
+
+        t = x0;
+
+        x0 = x1 - q * x0;
+
+        x1 = t;
+    }
+
+    // Make x1 positive
+    if (x1 < 0)
+        x1 += m0;
+
+    return x1;
+}
+
+
+// Assumption: Numbers in m[] are pairwise coprime
+// (gcd for every pair is 1)
+int findMinX(int m[], int a[], int n)
+{
+    int M = 1, X, Mn[10], Xn[10], i;
+    for (i = 0; i < n; i++)
+        M *= m[i];
+    cout << "\n" << "M = " << M;
+
+    int result = 0;
+
+    cout << "\n";
+    for (i = 0; i < n; i++)
+    {
+        Mn[i] = M / m[i];
+        cout << "\n" << "M" << i + 1 << "= M/m" << i + 1 << "=" << M << "/" << m[i] << "=" << Mn[i];
+
+        cout << "\n" << "M" << i + 1 << "*X" << i + 1 << " = 1(mod m" << i + 1 << ")";
+        cout << "\n" << Mn[i] << "*X" << i + 1 << " = 1(mod " << m[i] << ")";
+        Xn[i] = inv(Mn[i], m[i]);
+        cout << "\n" << "X" << i + 1 << " = " << Xn[i] << "\n";
+    }
+
+    cout << "\n" << "result  = ";
+    for (i = 0; i < n; i++)
+    {
+        cout << "M" << i + 1 << "*X" << i + 1 << "*a" << i + 1;
+        if (i < n - 1)
+            cout << " + ";
+    }
+    cout << "\n" << "\t= ";
+    for (i = 0; i < n; i++)
+    {
+        cout << Mn[i] << "*" << Xn[i] << "*" << a[i];
+        if (i < n - 1)
+            cout << " + ";
+        result += Mn[i] * Xn[i] * a[i];
+    }
+    cout << "\n" << "\t= " << result;
+
+    X = result % M;
+    cout << "\n\n" << "X = result (mod M)"
+         << "\n" << "  = " << result << "(mod " << M << ")";
+
+    return X;
+}
+
+int main()
+{
+    int n, X, a[10], m[10]; // X = a (mod m)
+
+    cout << "\n****** Chinese Remainder Theorem ******\n";
+
+    cout << "\n\t" << "X = a1(mod m1)"
+         << "\n\t" << "X = a2(mod m2)"
+         << "\n\t" << ".............."
+         << "\n\t" << "Xn = an(mod mn)"
+         << "\n" << "where m1, m2, ...., mn are co-prime";
+       
+    cout << "\n\n\t" << "X = (M1*X1*a1 + M2*X2*a2 + ...... + Mn*Xn*an)(Mod M)"
+         << "\n\t" << "M = m1 * m2 * ...... * mn"
+         << "\n\t" << "Mn = M/mn"
+         << "\n\t" << "Mn*Xn = 1(mod mn)";
+
+    cout << "\n\nEnter the no. of equations: ";
+    cin >> n;
+    cout << "\n";
+
+    for (int i = 0; i < n; i++)
+    {
+        cout << "Enter a" << i + 1 << ": ";
+        cin >> a[i];
+
+        cout << "Enter m" << i + 1 << ": ";
+        cin >> m[i];
+        cout << "\n";
+    }
+
+    cout << "Equations are as follows:\n";
+    for (int i = 0; i < n; i++)
+    {
+        cout << "X = " << a[i] << " (mod " << m[i] << ")" << "\n";
+    }
+
+    X = findMinX(m, a, n);
+    cout << "\n" << "X = " << X << "\n";
+
+    return 0;
+}
+
+/* OUTPUT :
+ iraj@iraj-VirtualBox:~/Desktop$ g++ crt.cpp
+ iraj@iraj-VirtualBox:~/Desktop$ ./a.out
+
+****** Chinese Remainder Theorem ******
+
+        X = a1(mod m1)
+        X = a2(mod m2)
+        ..............
+        Xn = an(mod mn)
+where m1, m2, ...., mn are co-prime
+
+        X = (M1*X1*a1 + M2*X2*a2 + ...... + Mn*Xn*an)(Mod M)
+        M = m1 * m2 * ...... * mn
+        Mn = M/mn
+        Mn*Xn = 1(mod mn)
+
+Enter the no. of equations: 3
+
+Enter a1: 1
+Enter m1: 5
+
+Enter a2: 1
+Enter m2: 7
+
+Enter a3: 3
+Enter m3: 11
+
+Equations are as follows:
+X = 1 (mod 5)
+X = 1 (mod 7)
+X = 3 (mod 11)
+
+M = 385
+
+M1= M/m1=385/5=77
+M1*X1 = 1(mod m1)
+77*X1 = 1(mod 5)
+X1 = 3
+
+M2= M/m2=385/7=55
+M2*X2 = 1(mod m2)
+55*X2 = 1(mod 7)
+X2 = 6
+
+M3= M/m3=385/11=35
+M3*X3 = 1(mod m3)
+35*X3 = 1(mod 11)
+X3 = 6
+
+result  = M1*X1*a1 + M2*X2*a2 + M3*X3*a3
+        = 77*3*1 + 55*6*1 + 35*6*3
+        = 1191
+
+X = result (mod M)
+  = 1191(mod 385)
+X = 36
+
+*/
