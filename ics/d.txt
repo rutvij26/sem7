@@ -1,0 +1,143 @@
+// Diffie-Hellman key exchange algorithm
+
+#include <iostream>
+#include <cstdio>
+
+using namespace std;
+
+// Global public elements
+long long int p, g;
+// p -> prime number
+// g -> g < p and g is a primitive root of p
+
+class DiffieHellman
+{
+public:
+    long long int a, b, A, B, keyA, keyB;
+
+    // a -> Alice's secret key ; b -> Bob's secret key
+    // A -> Alice's public key ; B -> Bob's public key
+    // keyA -> shared secret key computed by A
+    // keyB -> shared secret key computed by B
+    DiffieHellman()
+    {
+        cout << "\n***** Diffie-Hellman Key Exchange Algorithm *****";	
+ 	
+        accept_p();
+
+        cout << "Enter g (primitive root modulo of p): ";
+        cin >> g;
+
+        accept_a();
+        accept_b();
+
+        A = power(g, a, p); // Alice sends Bob A = g^a mod p
+        B = power(g, b, p); // Bob sends Alice B = g^b mod p
+
+        keyA = power(B, a, p); // Alice computes keyA = B^a mod p
+        keyB = power(A, b, p); // Bob computes keyB = A^b mod p
+    }
+
+    // Function to compute x^m mod n
+    long long int power(int x, int m, int n)
+    {
+        long long int t;
+        if (m == 1)
+            return x;
+        t = power(x, m / 2, n);
+        if (m % 2 == 0)
+            return (t * t) % n;
+        else
+            return (((t * t) % n) * x) % n;
+    }
+
+    void accept_a()
+    {
+        bool is_a_less_than_p = false;
+        do
+        {
+            cout << "\nEnter secret integer 'a' for Alice such that a<p: ";
+            cin >> a;
+            if (a > p)
+                cout << "a must be less than p";
+            else
+                is_a_less_than_p = true;
+        } while (!is_a_less_than_p);
+    }
+
+    void accept_b()
+    {
+        bool is_b_less_than_p = false;
+        do
+        {
+            cout << "\nEnter secret integer 'b' for Bob such that b<p: ";
+            cin >> b;
+            if (b > p)
+                cout << "a must be less than p";
+            else
+                is_b_less_than_p = true;
+        } while (!is_b_less_than_p);
+    }
+
+    void accept_p()
+    {
+        bool gotPrime = false;
+        do
+        {
+            cout << "\n\nEnter p (prime number): ";
+            cin >> p;
+
+            bool isPrime = true;
+            for (int i = 2; i <= p / 2; i++)
+            {
+                if (p % i == 0)
+                {
+                    isPrime = false;
+                    cout << p << " is not a prime number";
+                    break;
+                }
+            }
+            if (isPrime)
+            {
+                gotPrime = true;
+            }
+        } while (!gotPrime);
+    }
+};
+
+int main()
+{
+    DiffieHellman dh;
+
+    cout << "\nAlice sends to Bob (A = g^a mod p): " << dh.A;
+    cout << "\nBob sends to Alice (B = g^b mod p): " << dh.B;
+
+    cout << "\n\nAlice computes (keyA = B^a mod p): " << dh.keyA;
+    cout << "\nBob computes (keyB = A^b mod p): " << dh.keyB;
+
+    cout << "\n\nAlice and Bob now shares a secret key: " << dh.keyA << "\n";
+    return 0;
+}
+
+/* OUTPUT:
+
+iraj@iraj-VirtualBox:~/Documents$ g++ Diffie_Hellman.cpp
+iraj@iraj-VirtualBox:~/Documents$ ./a.out
+
+***** Diffie-Hellman Key Exchange Algorithm *****
+
+Enter p (prime number): 23
+Enter g (primitive root modulo of p): 5
+
+Enter secret integer 'a' for Alice such that a<p: 4
+
+Enter secret integer 'b' for Bob such that b<p: 3
+
+Alice sends Bob (A = g^a mod p): 4
+Bob sends Alice (B = g^b mod p): 10
+
+Alice computes (keyA = B^a mod p): 18
+Bob computes (keyB = A^b mod p): 18
+
+Alice and Bob now shares a secret key: 18
+*/
